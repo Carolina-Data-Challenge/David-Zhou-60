@@ -1,32 +1,75 @@
 ---
 title: "CDC"
-author: "Robert Gan"
+author: "David Zhou, Erin Greig, Jade Henderson, Robert Gan"
 date: "10/3/2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
-Testing whether or not this works
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+data <- read_csv("https://raw.githubusercontent.com/Carolina-Data-Challenge/David-Zhou-60/master/OpenAQDurham.csv?token=AQRZDZAADWU7AF4OGDZDIQK7PDO7Y")
+data
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+data <-data %>% 
+  rename(
+    Location = location,
+    City = city,
+    Country = country,
+    Time = utc,
+    Local_Time = local,
+    Pollutant = parameter,
+    Value = value,
+    Unit = unit,
+    Latitude = latitude,
+    Longitude = longitude,
+    Etc = attribution
+    )
+data
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+data <- select(data, Location, City, Country, Time, Local_Time, Pollutant, Value, Unit, Latitude,Longitude)
+data <- data %>% group_by(Pollutant, Value)
+```
+
+```{r}
+data_pm25 <- data %>% filter(Pollutant == "pm25")
+data_pm10 <- data %>% filter(Pollutant == "pm10")
+data_bc <- data %>% filter(Pollutant == "bc")
+data_co <- data %>% filter(Pollutant == "co")
+data_o3 <- data %>% filter(Pollutant == "o3")
+data_so2 <- data %>% filter(Pollutant == "so2")
+data_no2 <- data %>% filter(Pollutant == "no2")
+
+means <- c(mean(data_pm25$Value),mean(data_pm10$Value))
+
+pollutants <- c("pm2.5", "pm10")
+
+pollutant <- data.frame(pollutants,means)
+pollutant
+
+means_2 <- c(mean(data_bc$Value),mean(data_co$Value),mean(data_o3$Value),mean(data_so2$Value),mean(data_no2$Value))
+
+pollutants_2 <- c("bc", "co", "o3", "so2", "no2")
+pollutant_2 <-data.frame(pollutants_2, means_2)
+pollutant_2
+```
+
+
+```{r}
+ggplot(pollutant,aes(x = pollutants, y= means)) + geom_bar(stat = "identity", fill="steelblue") +
+      theme_minimal()
+```
+
+```{r}
+ggplot(pollutant_2,aes(x = pollutants_2, y= means_2)) + geom_bar(stat = "identity", fill="steelblue") +
+      theme_minimal()
+```
+
