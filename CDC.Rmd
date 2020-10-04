@@ -8,14 +8,12 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(ggplot2)
+library(ggpubr)
 ```
-
+Read in the air pollution data for Durham, NC
 ```{r}
-data <- read_csv("https://raw.githubusercontent.com/Carolina-Data-Challenge/David-Zhou-60/master/OpenAQDurham.csv?token=AQRZDZAADWU7AF4OGDZDIQK7PDO7Y")
-data
-```
-
-```{r}
+data <- read_csv('./OpenAQDUrham.csv')
 data <-data %>% 
   rename(
     Location = location,
@@ -33,20 +31,19 @@ data <-data %>%
 data
 ```
 
-
 ```{r}
 data <- select(data, Location, City, Country, Time, Local_Time, Pollutant, Value, Unit, Latitude,Longitude)
 data <- data %>% group_by(Pollutant, Value)
 ```
-
+Filter out the air pollutants. The average values of all particulates were calcualted.
 ```{r}
-data_pm25 <- data %>% filter(Pollutant == "pm25")
-data_pm10 <- data %>% filter(Pollutant == "pm10")
-data_bc <- data %>% filter(Pollutant == "bc")
-data_co <- data %>% filter(Pollutant == "co")
-data_o3 <- data %>% filter(Pollutant == "o3")
-data_so2 <- data %>% filter(Pollutant == "so2")
-data_no2 <- data %>% filter(Pollutant == "no2")
+data_pm25 <- data %>% filter(Pollutant == "pm25") %>% filter(Value >= 0)
+data_pm10 <- data %>% filter(Pollutant == "pm10")%>% filter(Value >= 0)
+data_bc <- data %>% filter(Pollutant == "bc")%>% filter(Value >= 0)
+data_co <- data %>% filter(Pollutant == "co")%>% filter(Value >= 0)
+data_o3 <- data %>% filter(Pollutant == "o3")%>% filter(Value >= 0)
+data_so2 <- data %>% filter(Pollutant == "so2")%>% filter(Value >= 0)
+data_no2 <- data %>% filter(Pollutant == "no2")%>% filter(Value >= 0)
 
 means <- c(mean(data_pm25$Value),mean(data_pm10$Value))
 
@@ -64,12 +61,47 @@ pollutant_2
 
 
 ```{r}
-ggplot(pollutant,aes(x = pollutants, y= means)) + geom_bar(stat = "identity", fill="steelblue") +
+max_2 <- c(max(data_bc$Value),max(data_co$Value),max(data_o3$Value),max(data_so2$Value),max(data_no2$Value))
+max_2
+max <- c(max(data_pm25$Value),max(data_pm10$Value))
+max
+```
+Plot the average values of pm2.5 and pm10
+```{r}
+a<-ggplot(data_pm25,aes(x = Pollutant, y= Value)) + geom_boxplot() + ylab("µg/m³") + scale_y_log10() + theme_minimal()
+b<-ggplot(data_pm10,aes(x = Pollutant, y= Value)) + geom_boxplot() + ylab("µg/m³") + scale_y_log10() + theme_minimal()
+c<-ggplot(data_bc,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") + scale_y_log10()+ theme_minimal()
+d<-ggplot(data_co,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") + scale_y_log10() + theme_minimal()
+e<-ggplot(data_so2,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") + scale_y_log10() + theme_minimal()
+f<-ggplot(data_no2,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") +scale_y_log10() + theme_minimal()
+g<-ggplot(data_o3,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") +scale_y_log10() +theme_minimal()
+figure <- ggarrange(a,b,c,d,e,f,g, ncol = 3, nrow = 3)
+figure
+```
+Plot the average values of black carbon, carbon monoxide, ozone, sulfur dioxide, and nitrogen dioxide.
+```{r}
+ggplot(pollutant_2,aes(x = pollutants_2, y= means_2)) + geom_bar(stat = "identity", fill="steelblue") +
       theme_minimal()
 ```
 
 ```{r}
-ggplot(pollutant_2,aes(x = pollutants_2, y= means_2)) + geom_bar(stat = "identity", fill="steelblue") +
-      theme_minimal()
+library(ggmap)
+library(RgoogleMaps)
+#durham <- GetMap(center=c(35.9940,-78.8986),size = c(640,640))
+#durham <-genStaticMap(center=c(35.9940,-78.8986),size = c(2048,2048))
+#durham
+help <- filter(data_pm10, Longitude < -78.69 & Longitude >-79.09 & Latitude > 35.79 & Latitude < 36.09)
+qmplot(Longitude, Latitude, data= help)
+#qmplot(Longitude, Latitude, data=data_pm10, geom = "blank", maptype = "toner-background",legend = "topright",zoom = 13, f = .5, extent = "normal") 
+```
+
+
+```{r}
+library(ggmap)
+qmplot(Longitude, Latitude, data=data_pm10, geom = "blank", maptype = "toner-background",legend = "topright",zoom = 13, f = .5, extent = "normal")  +
+  stat_density_2d(aes(fill = ..level..), size=0.01, bins=80,  geom = "polygon", alpha = .3, color = NA) + 
+  scale_fill_viridis_c()+
+  guides(fill = guide_colorbar(barwidth = 1, barheight = 2)) +
+  ggtitle("Density Map")
 ```
 
