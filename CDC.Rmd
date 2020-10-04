@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
 library(ggpubr)
+library(ggmap)
 ```
 Read in the air pollution data for Durham, NC
 ```{r}
@@ -28,14 +29,16 @@ data <-data %>%
     Longitude = longitude,
     Etc = attribution
     )
+data<- data%>%  separate(Time, c("Date", "Time"), sep = " ") 
 data
 ```
 
 ```{r}
-data <- select(data, Location, City, Country, Time, Local_Time, Pollutant, Value, Unit, Latitude,Longitude)
+data <- select(data, Location, City, Country,Date, Time, Local_Time, Pollutant, Value, Unit, Latitude,Longitude)
 data <- data %>% group_by(Pollutant, Value)
+noon <- data %>% filter(Time == "12:00:00")
 ```
-Filter out the air pollutants. The average values of all particulates were calcualted.
+Using the dataset that was given, we filtered the data into each each type of pollutant. Then we calculated the average pollution level for each pollutant. 
 ```{r}
 data_pm25 <- data %>% filter(Pollutant == "pm25") %>% filter(Value >= 0)
 data_pm10 <- data %>% filter(Pollutant == "pm10")%>% filter(Value >= 0)
@@ -56,17 +59,10 @@ means_2 <- c(mean(data_bc$Value),mean(data_co$Value),mean(data_o3$Value),mean(da
 
 pollutants_2 <- c("bc", "co", "o3", "so2", "no2")
 pollutant_2 <-data.frame(pollutants_2, means_2)
-pollutant_2
 ```
+We then took the data and created a box plot for each pollutant. Each data point was plotted on a logarithmic scale to adjust the scale of the plots. From the boxplots, it is easy to tell that there are outliers for several of the pollutants. For example, the average pollution level for SO2 and NO2 are very low but there are data points that are three times higher than average or SO2 and almost 100 times higher than average for NO2.
 
-
-```{r}
-max_2 <- c(max(data_bc$Value),max(data_co$Value),max(data_o3$Value),max(data_so2$Value),max(data_no2$Value))
-max_2
-max <- c(max(data_pm25$Value),max(data_pm10$Value))
-max
-```
-Plot the average values of pm2.5 and pm10
+Note: For this dataset, you will notice there is no boxplot present for black carbon. This is because there is no recorded data for black carbom in Durham, NC.
 ```{r}
 a<-ggplot(data_pm25,aes(x = Pollutant, y= Value)) + geom_boxplot() + ylab("µg/m³") + scale_y_log10() + theme_minimal()
 b<-ggplot(data_pm10,aes(x = Pollutant, y= Value)) + geom_boxplot() + ylab("µg/m³") + scale_y_log10() + theme_minimal()
@@ -78,30 +74,41 @@ g<-ggplot(data_o3,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") +s
 figure <- ggarrange(a,b,c,d,e,f,g, ncol = 3, nrow = 3)
 figure
 ```
-Plot the average values of black carbon, carbon monoxide, ozone, sulfur dioxide, and nitrogen dioxide.
+Next, we plotted the mean pollution levels of the pollutants measured in ppm versus each other. This was compared to national data to assess pollution levels in Durham. 
+
+INCLUDE NATIONAL DATA
 ```{r}
-ggplot(pollutant_2,aes(x = pollutants_2, y= means_2)) + geom_bar(stat = "identity", fill="steelblue") +
+ggplot(pollutant_2,aes(x = pollutants_2, y= means_2)) + geom_bar(stat = "identity", fill="steelblue") + 
       theme_minimal()
 ```
 
 ```{r}
-library(ggmap)
-library(RgoogleMaps)
-#durham <- GetMap(center=c(35.9940,-78.8986),size = c(640,640))
-#durham <-genStaticMap(center=c(35.9940,-78.8986),size = c(2048,2048))
-#durham
-help <- filter(data_pm10, Longitude < -78.69 & Longitude >-79.09 & Latitude > 35.79 & Latitude < 36.09)
-qmplot(Longitude, Latitude, data= help)
-#qmplot(Longitude, Latitude, data=data_pm10, geom = "blank", maptype = "toner-background",legend = "topright",zoom = 13, f = .5, extent = "normal") 
+data_pm10
+ggplot(data_pm10, aes(x = Longitude,y = Latitude) )+ geom_point(stat = "identity", fill="steelblue")
+```
+
+
+
+```{r}
+noon_pm25 <- noon %>% filter(Pollutant == "pm25") %>% filter(Value >= 0)
+noon_pm10 <- noon %>% filter(Pollutant == "pm10")%>% filter(Value >= 0)
+noon_bc <- noon %>% filter(Pollutant == "bc")%>% filter(Value >= 0)
+noon_co <- noon %>% filter(Pollutant == "co")%>% filter(Value >= 0)
+noon_o3 <- noon %>% filter(Pollutant == "o3")%>% filter(Value >= 0)
+noon_so2 <- noon %>% filter(Pollutant == "so2")%>% filter(Value >= 0)
+noon_no2 <- noon %>% filter(Pollutant == "no2")%>% filter(Value >= 0)
 ```
 
 
 ```{r}
-library(ggmap)
-qmplot(Longitude, Latitude, data=data_pm10, geom = "blank", maptype = "toner-background",legend = "topright",zoom = 13, f = .5, extent = "normal")  +
-  stat_density_2d(aes(fill = ..level..), size=0.01, bins=80,  geom = "polygon", alpha = .3, color = NA) + 
-  scale_fill_viridis_c()+
-  guides(fill = guide_colorbar(barwidth = 1, barheight = 2)) +
-  ggtitle("Density Map")
+
+ggplot(noon_pm25, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 7.775, color = "blue")+ theme(axis.text.x = element_text(angle = 90))
+ggplot(noon_pm10, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 7.775, color = "blue")+ theme(axis.text.x = element_text(angle = 90))
+ggplot(noon_co, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 7.775, color = "blue")+ theme(axis.text.x = element_text(angle = 90))
+ggplot(noon_o3, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 7.775, color = "blue")+ theme(axis.text.x = element_text(angle = 90))
+ggplot(noon_so2, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 7.775, color = "blue")+ theme(axis.text.x = element_text(angle = 90))
+ggplot(noon_no2, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 7.775, color = "blue")+ theme(axis.text.x = element_text(angle = 90))
+
 ```
+
 
