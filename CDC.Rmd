@@ -38,7 +38,7 @@ data <- select(data, Location, City, Country,Date, Time, Local_Time, Pollutant, 
 data <- data %>% group_by(Pollutant, Value)
 noon <- data %>% filter(Time == "12:00:00")
 ```
-Using the dataset that was given, we filtered the data into each each type of pollutant. Then we calculated the average pollution level for each pollutant. 
+Using the dataset that was given, the data was filtered into each each type of pollutant. The average pollution level for each pollutant was calculated. 
 ```{r}
 data_pm25 <- data %>% filter(Pollutant == "pm25") %>% filter(Value >= 0)
 data_pm10 <- data %>% filter(Pollutant == "pm10")%>% filter(Value >= 0)
@@ -61,31 +61,30 @@ means_2 <- c(mean(data_bc$Value),mean(data_co$Value),mean(data_o3$Value),mean(da
 pollutants_2 <- c("bc", "co", "o3", "so2", "no2")
 pollutant_2 <-data.frame(pollutants_2, means_2)
 ```
-  We then took the data and created a box plot for each pollutant. Each data point was plotted on a logarithmic scale to adjust the scale of the plots. From the boxplots, it is easy to tell that there are outliers for several of the pollutants. For example, the average pollution level for SO2 and NO2 are very low but there are data points that are three times higher than average or SO2 and almost 100 times higher than average for NO2.
+  The data was used to create a box plot for each pollutant. Each data point was plotted on a logarithmic scale to adjust the scale of the plots. From the boxplots, it is evident that there are outliers for several of the pollutants. For example, the average pollution level for SO2 and NO2 are very low but there are data points that are three times higher than average or SO2 and almost 100 times higher than average for NO2 for certain times.
 
-Note: For this dataset, you will notice there is no boxplot present for black carbon. This is because there is no recorded data for black carbom in Durham, NC.
+Note: For this dataset, notice there is no boxplot present for black carbon. This is because there is no recorded data for black carbon in Durham, NC.
 ```{r}
-a<-ggplot(data_pm25,aes(x = Pollutant, y= Value)) + geom_boxplot() + ylab("µg/m³") + scale_y_log10() + theme_minimal() + ggtitle("pm2.5 values")
-b<-ggplot(data_pm10,aes(x = Pollutant, y= Value)) + geom_boxplot() + ylab("µg/m³") + scale_y_log10() + theme_minimal() + ggtitle("pm10 values")
-c<-ggplot(data_co,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") + scale_y_log10() + theme_minimal() + ggtitle("co values")
-d<-ggplot(data_so2,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") + scale_y_log10() + theme_minimal() + ggtitle("o3 values")
-e<-ggplot(data_no2,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") +scale_y_log10() + theme_minimal() + ggtitle("so2 values")
-f<-ggplot(data_o3,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") +scale_y_log10() +theme_minimal() + ggtitle("no2 values")
+a<-ggplot(data_pm25,aes(x = Pollutant, y= Value)) + geom_boxplot() + ylab("µg/m³") + scale_y_log10() + theme_minimal() + ggtitle("PM2.5 values")
+b<-ggplot(data_pm10,aes(x = Pollutant, y= Value)) + geom_boxplot() + ylab("µg/m³") + scale_y_log10() + theme_minimal() + ggtitle("PM10 values")
+c<-ggplot(data_co,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") + scale_y_log10() + theme_minimal() + ggtitle("CO values")
+d<-ggplot(data_so2,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") + scale_y_log10() + theme_minimal() + ggtitle("O3 values")
+e<-ggplot(data_no2,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") +scale_y_log10() + theme_minimal() + ggtitle("SO2 values")
+f<-ggplot(data_o3,aes(x = Pollutant, y= Value)) + geom_boxplot() +ylab("ppm") +scale_y_log10() +theme_minimal() + ggtitle("NO2 values")
 figure <- ggarrange(a,b,c,d,e,f, ncol = 2, nrow = 3)
 figure
 ```
-  Next, we plotted the mean pollution levels of the pollutants measured in ppm versus each other. This was compared to national data to assess pollution levels in Durham. 
+  Next, the mean pollution levels of the pollutants were plotted and compared to national data to assess pollution levels in Durham. 
 
   From the bar graphs that show the national air quality standard in comparison to the air quality data for Durham, NC, it is clear to see that Durham is well below the national standard in every pollutant category.
 
-INCLUDE NATIONAL DATA
 US Standards:
-pm2.5 35 (24 hours)
-pm10: 150 (24 hours)
-co: 9ppm (8 hour)
-o3: .070ppm (8 hours)  
-so2: .075ppm (1hr)
-no2: .1 ppm(1 hour)
+PM2.5 35 (24 hours)
+PM10: 150 (24 hours)
+CO: 9ppm (8 hour)
+O3: .070ppm (8 hours)  
+SO2: .075ppm (1 hour)
+NO2: .1 ppm(1 hour)
 ```{r}
 pol <- c("pm 2.5 [µg/m³]", "pm 10 [µg/m³]", "co [ppm]","o3 [ppm]", "so2 [ppm]", "no2 [ppm]")
 avgs <- c(35,150,9,.07,.075,.1)
@@ -108,17 +107,17 @@ o3_avg <- tibble(ah,ai)
 so2_avg <- tibble(aj,ak)
 no2_avg <- tibble(al,am)
 
-b1<- ggplot(pm25_avg,aes(x = ab, y= ac)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average pm 2.5 vs National Standard") + xlab("Pollutant") + ylab("Average [µg/m³]")
-b2<- ggplot(pm10_avg,aes(x = ad, y= ae)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average pm 10 vs National Standard") + xlab("Pollutant") + ylab("Average [µg/m³]")
-b3<- ggplot(co_avg,aes(x = af, y= ag)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average co vs National Standard") + xlab("Pollutant") + ylab("Average [ppm]")
-b4<- ggplot(o3_avg,aes(x = ah, y= ai)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average o3 vs National Standard") + xlab("Pollutant") + ylab("Average [ppm]")
-b5<- ggplot(so2_avg,aes(x = aj, y= ak)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average so2 vs National Standard") + xlab("Pollutant") + ylab("Average [ppm]")
-b6<- ggplot(no2_avg,aes(x = al, y= am)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average no2 vs National Standard") + xlab("Pollutant") + ylab("Average [ppm]")
+b1<- ggplot(pm25_avg,aes(x = ab, y= ac)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average PM2.5 vs National Standard") + xlab("Pollutant") + ylab("Average [µg/m³]")
+b2<- ggplot(pm10_avg,aes(x = ad, y= ae)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average PM10 vs National Standard") + xlab("Pollutant") + ylab("Average [µg/m³]")
+b3<- ggplot(co_avg,aes(x = af, y= ag)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average CO vs National Standard") + xlab("Pollutant") + ylab("Average [ppm]")
+b4<- ggplot(o3_avg,aes(x = ah, y= ai)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average O3 vs National Standard") + xlab("Pollutant") + ylab("Average [ppm]")
+b5<- ggplot(so2_avg,aes(x = aj, y= ak)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average SO2 vs National Standard") + xlab("Pollutant") + ylab("Average [ppm]")
+b6<- ggplot(no2_avg,aes(x = al, y= am)) + geom_bar(stat = "identity", fill="steelblue") + theme_minimal() + ggtitle("Average NO2 vs National Standard") + xlab("Pollutant") + ylab("Average [ppm]")
 
 ggarrange(b1,b2,b3,b4,b5,b6, ncol = 2, nrow = 3)
 
 ```
-Filter data for pollution values at 12pm UTC
+Filter data for pollution values at 12pm UTC.
 
 ```{r}
 noon_pm25 <- noon %>% filter(Pollutant == "pm25") %>% filter(Value >= 0)
@@ -135,20 +134,20 @@ mean(noon_o3$Value)
 mean(noon_so2$Value)
 mean(noon_no2$Value)
 ```
-  Here we took the measurements that were taken at 12 pm UTC and plotted them across time. The average value of the pollutant is plotted as a horizontal line across the graph to be referenced. 
-  While in most of the plots, it is difficult to find a line of best fit, it is easy to see that in the O3 plot follows a sin or cos function. It follows the changing of the seasons and dips during the autumn and winter months and increases during the spring and summer months. We expect that if the data was plotted over a larger time range, an even stronger correlation would be found. This corresponds to the scientific data which finds that ozone values have seasonal fluctuations (source: https://link.springer.com/article/10.1007/s10874-005-1172-z). 
+  Here, the measurements that were taken at 12pm UTC were plotted across time. The average value of the pollutant was plotted as a horizontal line across the graph to be referenced. 
+  While in most of the plots, it is difficult to find a line of best fit, it is easy to see that the O3 plot follows a sin or cos function. It follows the changing of the seasons and dips during the autumn and winter months and increases during the spring and summer months. We expect that if the data was plotted over a larger time range, an even stronger correlation would be found. This corresponds to the scientific data which finds that ozone values have seasonal fluctuations (source: https://link.springer.com/article/10.1007/s10874-005-1172-z). 
 
 ```{r}
 
-ggplot(noon_pm25, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 7.775793, color = "blue") + scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + ggtitle("pm2.5 vs time") + ylab("Values [µg/m³]")
+ggplot(noon_pm25, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 7.775793, color = "blue") + scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + ggtitle("PM2.5 vs Time") + ylab("Values [µg/m³]")
 
-ggplot(noon_pm10, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 12.66594, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("pm10 vs time") + ylab("Values [µg/m³]")
+ggplot(noon_pm10, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 12.66594, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("PM10 vs Time") + ylab("Values [µg/m³]")
 
-ggplot(noon_co, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = .3911875, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("co vs time")+ ylab("Values [ppm]")
+ggplot(noon_co, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = .3911875, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("CO vs Time")+ ylab("Values [ppm]")
 
-ggplot(noon_o3, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = .01972096, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("o3 vs time")+ ylab("Values [ppm]")
+ggplot(noon_o3, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = .01972096, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("O3 vs Time")+ ylab("Values [ppm]")
 
-ggplot(noon_so2, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = .0001130952, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("so2 vs time")+ ylab("Values [ppm]")
+ggplot(noon_so2, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = .0001130952, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("SO2 vs Time")+ ylab("Values [ppm]")
 
-ggplot(noon_no2, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 0.004420833, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("no2 vs time")+ ylab("Values [ppm]")
+ggplot(noon_no2, aes(x = Date,y = Value)) + geom_point(stat = "identity", fill="steelblue", size = .5)  + theme_minimal() + geom_hline(yintercept = 0.004420833, color = "blue")+ scale_x_discrete(breaks = noon_pm25$Date[c(T,F,F,F,F,F,F,F,F,F,F,F,F,F)]) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+ ggtitle("NO2 vs Time")+ ylab("Values [ppm]")
 ```
